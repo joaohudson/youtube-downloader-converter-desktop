@@ -124,13 +124,15 @@ namespace youtube_downloader_and_converter_desktop
             string type = mp3Button.IsChecked ?? false ? "mp3" : "mp4";
             try{
                 var playlist = await apiClient.GetPlayList(urlBox.Text);
+                var playlistName = await apiClient.GetPlayListTitle(urlBox.Text);
                 messageBlock.Text = "Baixando: 0 / " + playlist.Length;
                 for(int i = 0; i < playlist.Length; i++){
                     var ytUrl = playlist[i];
                     var name = await apiClient.GetVideoName(ytUrl);
                     var videoData = await apiClient.GetVideo(ytUrl, type);
                     var videosPath = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
-                    var path = Path.Combine(videosPath, name + '.' + type);
+                    Directory.CreateDirectory(Path.Combine(videosPath, playlistName));
+                    var path = Path.Combine(videosPath, playlistName, name + '.' + type);
                     using(var file = File.Open(path, FileMode.Create)){
                         videoData.CopyTo(file);
                     }

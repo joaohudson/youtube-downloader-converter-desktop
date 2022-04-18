@@ -17,6 +17,15 @@ namespace youtube_downloader_and_converter_desktop{
             return await response.Content.ReadAsStringAsync();
         }
 
+        public async Task<string> GetPlayListTitle(string ytUrl){
+            var client = new HttpClient();
+            var response = await client.GetAsync(baseUrl + "/playlist-title?url=" + ytUrl);
+            if(response.StatusCode != HttpStatusCode.OK){
+                throw new WebException(await response.Content.ReadAsStringAsync());
+            }
+            return await response.Content.ReadAsStringAsync();
+        }
+
         public async Task<string[]> GetPlayList(string ytUrl){
             var client = new HttpClient();
             var response = await client.GetAsync(baseUrl + "/playlist?url=" + ytUrl);
