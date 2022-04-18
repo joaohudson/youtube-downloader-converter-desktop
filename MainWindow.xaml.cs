@@ -118,6 +118,14 @@ namespace youtube_downloader_and_converter_desktop
             }
         }
 
+        private string GetDownloadFolder(string type){
+            if(type.Equals("mp3")){
+                return Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
+            }else{
+                return Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
+            }
+        }
+
         private async void DownloadPlayList(TextBox urlBox, ApiClient apiClient, Button downloadButton){
             messageBlock.Text = "Iniciando . . .";
             downloadButton.IsEnabled = false;
@@ -130,7 +138,7 @@ namespace youtube_downloader_and_converter_desktop
                     var ytUrl = playlist[i];
                     var name = await apiClient.GetVideoName(ytUrl);
                     var videoData = await apiClient.GetVideo(ytUrl, type);
-                    var videosPath = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
+                    var videosPath = GetDownloadFolder(type);
                     Directory.CreateDirectory(Path.Combine(videosPath, playlistName));
                     var path = Path.Combine(videosPath, playlistName, name + '.' + type);
                     using(var file = File.Open(path, FileMode.Create)){
