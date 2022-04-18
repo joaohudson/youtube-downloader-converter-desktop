@@ -5,7 +5,7 @@ using System.IO;
 using System.Net;
 using System;
 
-namespace youtube_download_and_converter_desktop
+namespace youtube_downloader_and_converter_desktop
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -90,7 +90,7 @@ namespace youtube_download_and_converter_desktop
             downloadButton.Background = CustomBrushes.DarkGray;
             downloadButton.Foreground = Brushes.DarkTurquoise;
             downloadButton.Width = 80;
-            downloadButton.Click += (r, e) => DownloadVideo(urlBox, apiClient, downloadButton);
+            downloadButton.Click += (r, e) => Download(urlBox, apiClient, downloadButton);
             return downloadButton;
         }
 
@@ -105,6 +105,50 @@ namespace youtube_download_and_converter_desktop
             item.GroupName = "DownloadType";
             item.IsChecked = check;
             return item;
+        }
+
+        private void Download(TextBox urlBox, ApiClient apiClient, Button downloadButton){
+            var isPlaylist = urlBox.Text.Contains("/playlist");
+
+            if(isPlaylist){
+                DownloadPlayList(urlBox, apiClient, downloadButton);
+            }
+            else{
+                DownloadVideo(urlBox, apiClient, downloadButton);
+            }
+        }
+
+        private async void DownloadPlayList(TextBox urlBox, ApiClient apiClient, Button downloadButton){
+            messageBlock.Text = "Iniciando . . .";
+            downloadButton.IsEnabled = false;
+            string type = mp3Button.IsChecked ?? false ? "mp3" : "mp4";
+            try{
+                var playlist = await apiClient.GetPlayList(urlBox.Text);
+                messageBlock.Text = "Baixando: 0 / " + playlist.Length;
+                for(int i = 0; i < playlist.Length; i++){
+                    var ytUrl = playlist[i];
+                    var name = await apiClient.GetVideoName(ytUrl);
+                    var videoData = await apiClient.GetVideo(ytUrl, type);
+                    var videosPath = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
+                    var path = Path.Combine(videosPath, name + '.' + type);
+                    using(var file = File.Open(path, FileMode.Create)){
+                        videoData.CopyTo(file);
+                    }
+                    messageBlock.Text = "Baixando: " + (i+1) + " / " + playlist.Length; 
+                }
+                messageBlock.Text = "Download concluído!";
+            }
+            catch(WebException e){
+                Console.WriteLine(e);
+                messageBlock.Text = e.Message;
+            }
+            catch(Exception e){
+                Console.WriteLine(e);
+                messageBlock.Text = "Erro ao salvar o video!";
+            }
+            finally{
+                downloadButton.IsEnabled = true;
+            }
         }
 
         private async void DownloadVideo(TextBox urlBox, ApiClient apiClient, Button downloadButton){

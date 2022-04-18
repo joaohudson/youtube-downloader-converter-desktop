@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace youtube_download_and_converter_desktop
+namespace youtube_downloader_and_converter_desktop
 {
     /// <summary>
     /// Interaction logic for App.xaml
