@@ -168,7 +168,7 @@ namespace youtube_downloader_and_converter_desktop
             try{
                 var name = await apiClient.GetVideoName(urlBox.Text);
                 var videoData = await apiClient.GetVideo(urlBox.Text, type);
-                var videosPath = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
+                var videosPath = GetDownloadFolder(type);
                 var path = Path.Combine(videosPath, name + '.' + type);
                 using(var file = File.Open(path, FileMode.Create)){
                     videoData.CopyTo(file);
